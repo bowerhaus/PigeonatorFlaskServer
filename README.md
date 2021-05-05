@@ -121,8 +121,13 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
   source .venv/bin/activate
 ```
 
-4. Install Flask and other dependencies
+* Install Flask and other dependencies
 ```bash
   python -m pip install --upgrade pip
   pip3 install -r requirements.txt
+```
+
+* Run the server
+```bash
+python FlaskServer.py
 ```
