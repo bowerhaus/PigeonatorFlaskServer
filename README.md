@@ -112,11 +112,11 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
 * Fetch Pigeonator
   mkdir ~/Projects
   cd ~/Projects
-  git clone https://github.com/bowerhaus/Pigeonator.git
+  git clone https://github.com/bowerhaus/PigeonatorFlaskServer.git
   ```
 * Create and activate a virtual environment
 ```bash
-  cd ~/Projects/Pigeonator/FlaskServer
+  cd ~/Projects/PigeonatorFlaskServer
   python -m venv .venv
   source .venv/bin/activate
 ```
