@@ -1,12 +1,25 @@
 # The Pigeonator ML Server Setup
 
-We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb memory and 32Gb disk.
+For the machine learning inferencing we'll use a Debian 10 (Buster) VM running a Flask server to provide the ML API for the Pigeonator client(s). At some point it may be possible to run the models on the RPi client but for the time being we'll take advantage of the higher performance of a dedicated PC VM.
 
-* Passthrough host CPU features (without this TensorFlow may throw an Illegal instruction)
-  Edit the VM CONF file and add `args: -cpu host,kvm=off`
+Currently the ML Server provides API endpoints for:
+* Tensorflow Classification
+* PyTorch Classification
+* PyTorch Object Detection (via Detector wrapper)
+
+For my specific implemention, I run this under Proxmox and it's configured with 8Gb memory and 32Gb disk.
+
+## Proxmox Specific Config
+If the server will be required to serve up the Tensorflow endpoint(s) then we need to passthrough host CPU features. Without this, TensorFlow may throw an Illegal instruction.
+
+In the Proxmox console edit the VM CONF file and add `args: -cpu host,kvm=off`
   ```bash
   sudo nano /etc/pve/qemu-server/XXX.conf
   ```
+
+## Debian ML Server Setup
+
+From a freshly installed Debian 10 VM, perform the following steps:
 
 * Allow sudo access for user
   ```bash
@@ -14,7 +27,7 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
   /usr/sbin/usermod -aG sudo bower
   ```
 
-* Install QEMU Guest Agent
+* Install QEMU Guest Agent (Proxmox only)
   ```bash 
   apt-get install qemu-guest-agent
   ```
@@ -110,11 +123,12 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
   sudo ufw enable
   ```
 
-* Fetch Pigeonator
+* Fetch PigeonatorFlaskServer from GitHub
+```bash
   mkdir ~/Projects
   cd ~/Projects
   git clone https://github.com/bowerhaus/PigeonatorFlaskServer.git
-  ```
+```
 * Create and activate a virtual environment
 ```bash
   cd ~/Projects/PigeonatorFlaskServer
@@ -122,13 +136,28 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
   source .venv/bin/activate
 ```
 
-* Install Flask and other dependencies
+* Install Flask, Tensorflow, PyTorch, Detecto and other dependencies
 ```bash
   python3 -m pip install --upgrade pip
   pip3 install -r requirements.txt
 ```
+## Using Seq for Logging
 
-* Run the server
+In my implementation I use a Seq Server (https://datalust.co/) to act as a sink for log messages. Even though this isn't ML specific, I run this on the ML Server inside a Docker container. Installation instructions are here: https://hub.docker.com/r/datalust/seq,
+
 ```bash
-python FlaskServer.py
+  sudo docker run --name seq -d --restart unless-stopped -e ACCEPT_EULA=Y -p 5341:80 datalust/seq:latest
+  sudo ufw allow 5341
+```
+
+## Power Up the Flask Server
+
+The server can either be executed directly from a shell or can be debugged using VSCode. With the latter, I've found it is best to start it from the command line in the correct working folder:
+
+```bash
+  cd ~/Projects/PigeonatorFlaskServer
+  source .venv/bin/activate
+  python FlaskServer.py
+  # or
+  code
 ```
