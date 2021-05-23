@@ -150,6 +150,10 @@ In my implementation I use a Seq Server (https://datalust.co/) to act as a sink 
   sudo ufw allow 5341
 ```
 
+## Copy Across Model Files
+
+The ML Server can host several different models simultaneously. The chosen model is identified by name as part of the endpoint name. Simply copy your model into the Model folder and it will be loaded on first access by the Flask server. Note that model names are case sensitive so the filename must exactly match that in the API call.
+
 ## Power Up the Flask Server
 
 The server can either be executed directly from a shell or can be debugged using VSCode. With the latter, I've found it is best to start it from the command line in the correct working folder:
