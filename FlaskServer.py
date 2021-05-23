@@ -11,11 +11,13 @@ from flask import Flask, request
 
 from TFClassifier import TFClassifier
 from TorchClassifier import TorchClassifier
+from DetectoDetector import DetectoDetector
 
 app = Flask(__name__)
 
 tf_models = {}
 torch_models = {}
+detecto_models = {}
 
 def get_tf_model(name):
     if not name in tf_models:
@@ -44,7 +46,7 @@ def classify_image_with_tf(model_name):
 
 def get_torch_model(name):
     if not name in torch_models:
-        path = os.path.join(".", "model", name+".pt")
+        path = os.path.join(".", "Model", name+".pt")
         model = TorchClassifier(path)
         model.load()
         torch_models[name] = model
@@ -56,6 +58,23 @@ def classify_image_with_torch(model_name):
     inputs = req["inputs"]
     image = _process_base64(inputs)
     model = get_torch_model(model_name)
+    result = model.predict(image)
+    return result
+
+def get_detecto_model(name):
+    if not name in detecto_models:
+        path = os.path.join(".", "Model", name+".pth")
+        model = DetectoDetector(path)
+        model.load()
+        detecto_models[name] = model
+    return detecto_models[name]
+
+@app.route('/detect/detecto/<model_name>', methods=["POST"])
+def detect_image_with_detecto(model_name):
+    req = request.get_json(force=True)
+    inputs = req["inputs"]
+    image = _process_base64(inputs)
+    model = get_detecto_model(model_name)
     result = model.predict(image)
     return result
 

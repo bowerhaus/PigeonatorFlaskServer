@@ -97,6 +97,7 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
 
 * Set up Python
   ```bash
+  sudo apt install python3-pip
   sudo apt-get install python3-venv
   ```
 
@@ -123,7 +124,7 @@ We're using a Debian 10 (Buster) VM running under Proxmox. Configured with 8Gb m
 
 * Install Flask and other dependencies
 ```bash
-  python -m pip install --upgrade pip
+  python3 -m pip install --upgrade pip
   pip3 install -r requirements.txt
 ```
 
